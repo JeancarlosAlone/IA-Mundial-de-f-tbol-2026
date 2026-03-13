@@ -17,7 +17,11 @@ const STOP_WORDS = new Set([
     "del", "en", "al", "con", "por", "para", "y", "o", "pero", "si", "no", "me", "te", "le",
     "se", "lo", "hay", "tiene", "tienen", "esta", "estan", "era", "eran", "mas", "menos",
     "muy", "mucho", "poco", "tanto", "tal", "cual", "cuanto", "quiero", "saber", "dime",
-    "dices", "sabes", "sabe", "sobre", "acerca", "info", "informacion"
+    "dices", "sabes", "sabe", "sobre", "acerca", "info", "informacion",
+    // Domain words too generic — matching them causes false positives
+    "mundial", "2026", "seleccion", "selecciones", "copa", "futbol", "torneo",
+    "equipo", "equipos", "jugador", "jugadores", "partido", "partidos", "oficial",
+    "pais", "paises", "nacion", "naciones", "sede", "sedes", "ciudad", "ciudades"
 ]);
 
 let ctxActivo = null;
@@ -43,7 +47,7 @@ const TEMAS_AMBIGUOS = [
         ]
     },
     {
-        test: /(mejor|mas exitosa|mas titulos|mas copas) (seleccion|equipo|pais)/,
+        test: /(mejor|mas exitosa|mas titulos|mas copas).{0,10}(seleccion|equipo|pais)/,
         clarificacion: "A que te refieres con la mejor seleccion?\n- La que tiene mas titulos mundiales\n- La mejor actualmente (ranking FIFA)\n- La mejor de la historia",
         opciones: [
             { test: /titulos|copas|campeonatos|gano mas/, respuesta: () => "Brasil es la seleccion con mas titulos mundiales: 5 copas (1958, 1962, 1970, 1994, 2002). Le siguen Alemania e Italia con 4 cada una, y Argentina y Francia con 3." },
@@ -218,8 +222,13 @@ function detectarIntent(pregunta) {
     if (/(cuales equipos|que equipos).*(mas puntos|mayor puntaje|mas puntos fifa)/.test(t)) return "equipos_mas_puntos";
     if (/(quienes clasificaron|quienes pasaron|equipos clasificados|clasificados a eliminatorias)/.test(t)) return "ver_clasificados";
     if (/(mejores terceros|cuales son los mejores terceros|quienes fueron los terceros)/.test(t)) return "ver_mejores_terceros";
-    if (/(cuando es el mundial|cuando se juega|fechas del mundial|en que ano)/.test(t)) return "cuando_mundial";
-    if (/(donde (es|sera|se juega)|sede|ciudad(es)?|estadio(s)?).*(mundial)/.test(t) || /(mundial).*(donde|sede)/.test(t)) return "sede_mundial";
+    if (/(cuando es el mundial|cuando se juega|fechas del mundial|en que ano|cuando empieza|cuando comienza|cuando inicia|dia del mundial)/.test(t)) return "cuando_mundial";
+    if (/(donde (es|sera|se juega)|sede|ciudad(es)?|estadio(s)?).*(mundial)/.test(t) ||
+        /(mundial).*(donde|sede)/.test(t) ||
+        /ciudades?\s*(sede|anfitriona|del mundial)/.test(t) ||
+        /cuales son las ciudades/.test(t) ||
+        /sedes del mundial/.test(t))
+        return "sede_mundial";
     if (/(formato del mundial|como funciona|cuantas fases|como se juega el mundial|estructura del torneo)/.test(t)) return "formato_mundial";
     if (/(quien organiza|organizadores|organizacion del mundial)/.test(t)) return "organizador_mundial";
     if (/(ultimo campeon|quien gano el ultimo|campeon del mundo actual|quien es el campeon del mundo|quien fue campeon en el mundial)/.test(t)) return "conocimiento";
@@ -303,6 +312,8 @@ async function obtenerConocimientoPorClave(clave) {
 
 async function buscarConocimientoUsuario(pregunta) {
     const textoNorm = normalizarTexto(pregunta);
+
+    // 1. Similaridad trigrama — umbral alto para evitar falsos positivos
     const r1 = await pool.query(
         `SELECT clave, pregunta_base, respuesta,
                 GREATEST(similarity(pregunta_base, $1), similarity(respuesta, $1)) AS sim
@@ -310,15 +321,18 @@ async function buscarConocimientoUsuario(pregunta) {
          ORDER BY GREATEST(similarity(pregunta_base, $1), similarity(respuesta, $1)) DESC LIMIT 3`,
         [textoNorm]
     );
-    if (r1.rows.length > 0 && Number(r1.rows[0].sim) >= 0.38) return r1.rows[0];
+    if (r1.rows.length > 0 && Number(r1.rows[0].sim) >= 0.55) return r1.rows[0];
 
+    // 2. Busqueda por keywords — solo si hay 2+ palabras especificas (no genericas)
     const keywords = extraerKeywords(textoNorm);
-    if (keywords.length > 0) {
+    // Filtro adicional: descartar keywords que sean nombres de conceptos muy comunes
+    const kwEspecificas = keywords.filter(w => w.length >= 5);
+    if (kwEspecificas.length >= 2) {
         try {
-            const conditions = keywords.slice(0, 4)
+            const conditions = kwEspecificas.slice(0, 3)
                 .map((w, i) => `(pregunta_base ILIKE $${i + 2} OR respuesta ILIKE $${i + 2})`)
                 .join(" AND ");
-            const params = [textoNorm, ...keywords.slice(0, 4).map(w => `%${w}%`)];
+            const params = [textoNorm, ...kwEspecificas.slice(0, 3).map(w => `%${w}%`)];
             const r2 = await pool.query(
                 `SELECT clave, pregunta_base, respuesta FROM conocimiento_mundial
                  WHERE fuente = 'usuario' AND (${conditions})
@@ -340,15 +354,16 @@ async function buscarConocimientoSimilar(pregunta) {
          ORDER BY GREATEST(similarity(pregunta_base, $1), similarity(respuesta, $1)) DESC LIMIT 3`,
         [textoNorm]
     );
-    if (r1.rows.length > 0 && Number(r1.rows[0].sim) >= 0.42) return r1.rows[0];
+    if (r1.rows.length > 0 && Number(r1.rows[0].sim) >= 0.50) return r1.rows[0];
 
     const keywords = extraerKeywords(textoNorm);
-    if (keywords.length > 0) {
+    const kwEspecificas = keywords.filter(w => w.length >= 5);
+    if (kwEspecificas.length >= 2) {
         try {
-            const conditions = keywords.slice(0, 4)
+            const conditions = kwEspecificas.slice(0, 3)
                 .map((w, i) => `(pregunta_base ILIKE $${i + 2} OR respuesta ILIKE $${i + 2})`)
                 .join(" AND ");
-            const params = [textoNorm, ...keywords.slice(0, 4).map(w => `%${w}%`)];
+            const params = [textoNorm, ...kwEspecificas.slice(0, 3).map(w => `%${w}%`)];
             const r2 = await pool.query(
                 `SELECT clave, pregunta_base, respuesta FROM conocimiento_mundial
                  WHERE (${conditions})
@@ -398,16 +413,20 @@ function detectarPreguntaAmbigua(texto) {
 
 function resolverSeguimiento(pregunta) {
     if (!ctxActivo) return null;
-    const EXPIRA_MS = 2 * 60 * 1000;
+    const EXPIRA_MS = 3 * 60 * 1000; // 3 minutos
     if (Date.now() - ctxActivo.timestamp > EXPIRA_MS) { ctxActivo = null; return null; }
     const t = normalizarTexto(pregunta);
     for (const opcion of ctxActivo.opciones) {
         if (opcion.test.test(t)) {
-            ctxActivo = null;
+            // Mantener contexto activo para follow-ups encadenados ("y del 2026", "y de 2022?")
+            ctxActivo = { ...ctxActivo, timestamp: Date.now() };
             return opcion.respuesta();
         }
     }
-    if (t.split(" ").length <= 2) return null;
+    // Frases muy cortas (1-3 palabras) sin match → posiblemente intento de seguimiento no reconocido
+    // No destruir el contexto, dejar que siga activo
+    if (t.split(" ").length <= 3) return null;
+    // Frase larga sin match → nueva pregunta, limpiar contexto
     ctxActivo = null;
     return null;
 }
@@ -775,7 +794,14 @@ app.post("/chat", async (req, res) => {
                 else { const texto = datos.mejoresTerceros.map(c => `Grupo ${c.grupo}: ${c.nombre} | Pts:${c.puntos} DG:${c.dg} GF:${c.gf}`).join("\n"); respuesta = `8 mejores terceros:\n\n${texto}`; }
             }
             else if (intent === "cuando_mundial") { respuesta = "El Mundial 2026 se celebrara del 11 de junio al 19 de julio de 2026."; }
-            else if (intent === "sede_mundial") { const c = await obtenerConocimientoPorClave("sede_mundial_2026"); respuesta = c ? c.respuesta : "El Mundial 2026 sera en Estados Unidos, Canada y Mexico."; }
+            else if (intent === "sede_mundial") {
+                respuesta =
+                    "El Mundial 2026 se jugara en 16 ciudades sede:\n\n" +
+                    "Estados Unidos (11): Nueva York/NJ, Los Angeles, Dallas, Miami, San Francisco, Seattle, Houston, Kansas City, Boston, Philadelphia, Atlanta\n\n" +
+                    "Mexico (3): Ciudad de Mexico, Guadalajara, Monterrey\n\n" +
+                    "Canada (2): Toronto, Vancouver\n\n" +
+                    "La final sera en el MetLife Stadium (Nueva York/NJ).";
+            }
             else if (intent === "organizador_mundial") { respuesta = "El Mundial 2026 es organizado por FIFA, con EE.UU. (11 ciudades), Mexico (3) y Canada (2) como co-sedes."; }
             else if (intent === "formato_mundial") { respuesta = "Formato del Mundial 2026:\n\n- 48 equipos en 12 grupos de 4\n- Clasifican: 2 primeros de cada grupo + 8 mejores terceros\n- Fases: 16avos, Octavos, Cuartos, Semis, Final\n- Fechas: 11 junio - 19 julio 2026\n- Sede: EE.UU., Mexico y Canada"; }
             else if (intent === "ver_campeon_simulado") { respuesta = "El campeon simulado se decide en la vista de eliminatorias. Pulsa Simular eliminatorias y ejecuta todas las rondas."; }
