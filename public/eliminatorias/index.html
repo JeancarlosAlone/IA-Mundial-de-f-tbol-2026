@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminatorias · Mundial 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050b16;
+            --surface: #0a1525;
+            --card: #0d1c30;
+            --border: #172a44;
+            --c16: #3b82f6;
+            --c8: #10b981;
+            --c4: #f97316;
+            --c2: #a855f7;
+            --cfin: #eab308;
+            --win: #4ade80;
+            --lose: rgba(255,255,255,0.25);
+            --line: rgba(255,255,255,0.16);
+            --SLOT: 96;
+            --CARD_H: 68;
+            --CARD_W: 186;
+            --COL_W: 220;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: #e2e8f0;
+            font-family: 'Barlow Condensed', sans-serif;
+        }
+
+        /* === HEADER === */
+        header {
+            background: var(--surface);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg,#e11d48,#3b82f6,#10b981,#f97316,#a855f7,#eab308) 1;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+            header h1 {
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 26px;
+                letter-spacing: 3px;
+                background: linear-gradient(90deg, #e11d48, #3b82f6, #10b981, #f97316, #eab308);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+        .header-back {
+            padding: 7px 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 7px;
+            color: #94a3b8;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .header-back:hover {
+                background: rgba(255,255,255,0.12);
+                color: #e2e8f0;
+            }
+
+        /* === BUTTON BAR === */
+        .btn-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 12px 22px;
+            background: #080e1a;
+            border-bottom: 1px solid var(--border);
+            min-height: 54px;
+            align-items: center;
+        }
+
+        .btn {
+            display: none;
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.8px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.12s, filter 0.12s;
+        }
+
+            .btn::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255,255,255,0.12);
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                filter: brightness(1.12);
+            }
+
+                .btn:hover::after {
+                    opacity: 1;
+                }
+
+            .btn:active {
+                transform: translateY(0);
+            }
+
+            .btn.show {
+                display: inline-block;
+                animation: btnPop 0.4s cubic-bezier(.34,1.56,.64,1) both;
+            }
+
+        @keyframes btnPop {
+            from {
+                opacity: 0;
+                transform: scale(0.75) translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        #btnGenerar {
+            background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+        }
+
+        #btnSim16 {
+            background: linear-gradient(135deg, #065f46, #34d399);
+        }
+
+        #btnSim8 {
+            background: linear-gradient(135deg, #c2410c, #fb923c);
+        }
+
+        #btnSim4 {
+            background: linear-gradient(135deg, #6d28d9, #c084fc);
+        }
+
+        #btnSim2 {
+            background: linear-gradient(135deg, #9f1239, #fb7185);
+        }
+
+        #btnCampeon {
+            background: linear-gradient(135deg, #78350f, #fbbf24);
+            color: #1c0d00;
+        }
+
+        /* === STATUS === */
+        #estado {
+            padding: 7px 22px;
+            font-size: 12px;
+            font-family: 'Barlow', sans-serif;
+            color: #4a6480;
+            background: var(--bg);
+            border-bottom: 1px solid #0a1525;
+            min-height: 30px;
+            letter-spacing: 0.2px;
+        }
+
+        /* === SCROLL WRAPPER === */
+        .bracket-scroll {
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 20px 24px 60px;
+            background: var(--bg);
+        }
+
+        /* === ROUND LABELS === */
+        .round-labels {
+            display: flex;
+            width: 1980px;
+            margin-bottom: 14px;
+        }
+
+        .round-label {
+            width: 220px;
+            text-align: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2.5px;
+            padding: 5px 0;
+        }
+
+        /* === BRACKET CONTAINER === */
+        .bracket-container {
+            position: relative;
+            width: 1980px;
+            height: 820px;
+        }
+
+        #linesSvg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1980px;
+            height: 768px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* === MATCH CARDS === */
+        .match-card {
+            position: absolute;
+            width: 186px;
+            background: var(--card);
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.4s, box-shadow 0.4s;
+            z-index: 2;
+            opacity: 0.4;
+        }
+
+            .match-card.active {
+                opacity: 1;
+                animation: cardIn 0.45s cubic-bezier(.34,1.56,.64,1) both;
+            }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: scale(0.82) translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .match-card:hover {
+            box-shadow: 0 0 18px rgba(99,179,237,0.18);
+            border-color: #254d7a;
+        }
+
+        .match-card.mc-r16 {
+            border-top: 2.5px solid var(--c16);
+        }
+
+        .match-card.mc-r8 {
+            border-top: 2.5px solid var(--c8);
+        }
+
+        .match-card.mc-r4 {
+            border-top: 2.5px solid var(--c4);
+        }
+
+        .match-card.mc-r2 {
+            border-top: 2.5px solid var(--c2);
+        }
+
+        .match-card.mc-fin {
+            border-top: 2.5px solid var(--cfin);
+            box-shadow: 0 0 24px rgba(234,179,8,0.12);
+        }
+
+        /* === TEAM ROWS === */
+        .team-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 9px;
+            gap: 6px;
+            min-height: 31px;
+            transition: background 0.5s, opacity 0.4s;
+        }
+
+            .team-row + .team-row {
+                border-top: 1px solid #142035;
+            }
+
+        .team-flag {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.4s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+            .team-flag.loaded {
+                opacity: 1;
+            }
+
+            .team-flag.hidden {
+                display: none;
+            }
+
+        .team-name {
+            flex: 1;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: #b0c4d8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.4s;
+        }
+
+        .team-score {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16px;
+            letter-spacing: 1px;
+            min-width: 18px;
+            text-align: right;
+            color: #e2e8f0;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+            .team-score.reveal {
+                opacity: 1;
+                animation: scoreIn 0.5s cubic-bezier(.34,1.56,.64,1);
+            }
+
+        @keyframes scoreIn {
+            from {
+                opacity: 0;
+                transform: scale(1.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .team-row.winner {
+            background: #031a0d;
+        }
+
+            .team-row.winner .team-name {
+                color: var(--win);
+                font-weight: 700;
+            }
+
+            .team-row.winner .team-score {
+                color: var(--win);
+            }
+
+        .team-row.loser {
+            opacity: 0.3;
+        }
+
+        /* === CHAMPION CARD === */
+        .campeon-wrap {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            animation: campIn 0.9s cubic-bezier(.34,1.56,.64,1) both;
+        }
+
+        @keyframes campIn {
+            from {
+                opacity: 0;
+                transform: scale(0.4) rotate(-4deg);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .campeon-inner {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1a0f00, #2d1a00);
+            border: 2px solid var(--cfin);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(234,179,8,0.35), 0 0 80px rgba(234,179,8,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .campeon-flag {
+            width: 48px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .campeon-tag {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #d97706;
+            margin-bottom: 4px;
+        }
+
+        .campeon-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 2px;
+            color: #fef3c7;
+        }
+
+        /* === SCROLLBAR === */
+        .bracket-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .bracket-scroll::-webkit-scrollbar-track {
+            background: #080e1a;
+        }
+
+        .bracket-scroll::-webkit-scrollbar-thumb {
+            background: #1e3a5f;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Eliminatorias · Mundial 2026</h1>
+        <a class="header-back" href="/">Volver al chat</a>
+    </header>
+
+    <div class="btn-bar">
+        <button class="btn show" id="btnGenerar" onclick="generarDieciseisavos()">Generar 16vos</button>
+        <button class="btn" id="btnSim16" onclick="simularRonda('r16','r8')">Simular 16vos</button>
+        <button class="btn" id="btnSim8" onclick="simularRonda('r8','r4')">Simular octavos</button>
+        <button class="btn" id="btnSim4" onclick="simularRonda('r4','r2')">Simular cuartos</button>
+        <button class="btn" id="btnSim2" onclick="simularRonda('r2','final')">Simular semifinal</button>
+        <button class="btn" id="btnCampeon" onclick="coronarCampeon()">Coronar campeon</button>
+    </div>
+
+    <div id="estado">Genera los 16vos de final para comenzar.</div>
+
+    <div class="bracket-scroll">
+        <div class="round-labels" id="roundLabels"></div>
+        <div class="bracket-container" id="bracketContainer">
+            <svg id="linesSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="matchContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // ── CONSTANTS ────────────────────────────────────────────────────────────────
+        const SLOT = 96;
+        const CARD_H = 68;
+        const CARD_W = 186;
+        const COL_W = 220;
+        const PAD = (COL_W - CARD_W) / 2;   // 17
+        const TOTAL_W = 9 * COL_W;              // 1980
+        const TOTAL_H = 8 * SLOT;               // 768
+
+        // Column left-edge X for each position
+        const CX = {
+            r16L: 0 * COL_W + PAD,   // 17
+            r8L: 1 * COL_W + PAD,   // 237
+            r4L: 2 * COL_W + PAD,   // 457
+            r2L: 3 * COL_W + PAD,   // 677
+            fin: 4 * COL_W + PAD,   // 897
+            r2R: 5 * COL_W + PAD,   // 1117
+            r4R: 6 * COL_W + PAD,   // 1337
+            r8R: 7 * COL_W + PAD,   // 1557
+            r16R: 8 * COL_W + PAD,   // 1777
+        };
+
+        // Y position for a match given round index (0=r16) and local index within that side
+        function getY(ri, li) {
+            const spm = 1 << ri;
+            return li * spm * SLOT + ((spm * SLOT - CARD_H) >> 1);
+        }
+
+        // Get absolute {x,y} for a match card
+        function getCoords(rnd, idx) {
+            if (rnd === 'final') return { x: CX.fin, y: getY(3, 0) };
+            const cfg = {
+                r16: { ri: 0, half: 8, L: CX.r16L, R: CX.r16R },
+                r8: { ri: 1, half: 4, L: CX.r8L, R: CX.r8R },
+                r4: { ri: 2, half: 2, L: CX.r4L, R: CX.r4R },
+                r2: { ri: 3, half: 1, L: CX.r2L, R: CX.r2R },
+            }[rnd];
+            const left = idx < cfg.half;
+            const li = left ? idx : idx - cfg.half;
+            return { x: left ? cfg.L : cfg.R, y: getY(cfg.ri, li) };
+        }
+
+        // ── STATE ────────────────────────────────────────────────────────────────────
+        const state = {
+            r16: Array(16).fill(null),
+            r8: Array(8).fill(null),
+            r4: Array(4).fill(null),
+            r2: Array(2).fill(null),
+            final: [null],
+        };
+
+        // ── BUTTON CONTROL ───────────────────────────────────────────────────────────
+        const BTN_SEQ = ['btnGenerar', 'btnSim16', 'btnSim8', 'btnSim4', 'btnSim2', 'btnCampeon'];
+
+        function showStep(idx) {
+            BTN_SEQ.forEach((id, i) => {
+                const b = document.getElementById(id);
+                if (i === idx) { b.classList.add('show'); }
+                else { b.classList.remove('show'); }
+            });
+        }
+
+        // ── ROUND LABELS ─────────────────────────────────────────────────────────────
+        (function buildLabels() {
+            const LABELS = [
+                ['16avos de final', '#3b82f6'],
+                ['Octavos', '#10b981'],
+                ['Cuartos', '#f97316'],
+                ['Semifinal', '#a855f7'],
+                ['Final', '#eab308'],
+                ['Semifinal', '#a855f7'],
+                ['Cuartos', '#f97316'],
+                ['Octavos', '#10b981'],
+                ['16avos de final', '#3b82f6'],
+            ];
+            const row = document.getElementById('roundLabels');
+            LABELS.forEach(([text, color]) => {
+                const d = document.createElement('div');
+                d.className = 'round-label';
+                d.textContent = text;
+                d.style.color = color;
+                row.appendChild(d);
+            });
+        })();
+
+        // ── BUILD MATCH CARD ELEMENTS ────────────────────────────────────────────────
+        (function buildCards() {
+            const container = document.getElementById('matchContainer');
+            const ROUNDS = [
+                { name: 'r16', count: 16, cls: 'mc-r16' },
+                { name: 'r8', count: 8, cls: 'mc-r8' },
+                { name: 'r4', count: 4, cls: 'mc-r4' },
+                { name: 'r2', count: 2, cls: 'mc-r2' },
+                { name: 'final', count: 1, cls: 'mc-fin' },
+            ];
+            ROUNDS.forEach(({ name, count, cls }) => {
+                for (let i = 0; i < count; i++) {
+                    const { x, y } = getCoords(name, i);
+                    const card = document.createElement('div');
+                    card.id = `mc-${name}-${i}`;
+                    card.className = `match-card ${cls}`;
+                    card.style.left = `${x}px`;
+                    card.style.top = `${y}px`;
+                    card.innerHTML =
+                        `<div class="team-row" id="tr-${name}-${i}-A"><img class="team-flag hidden" alt=""><span class="team-name">-</span><span class="team-score"></span></div>` +
+                        `<div class="team-row" id="tr-${name}-${i}-B"><img class="team-flag hidden" alt=""><span class="team-name">-</span><span class="team-score"></span></div>`;
+                    container.appendChild(card);
+                }
+            });
+        })();
+
+        // ── SVG CONNECTOR LINES ──────────────────────────────────────────────────────
+        (function buildLines() {
+            const svg = document.getElementById('linesSvg');
+            svg.setAttribute('width', TOTAL_W);
+            svg.setAttribute('height', TOTAL_H);
+
+            const hc = CARD_H / 2;
+            const S = 'rgba(255,255,255,0.17)';
+            const W = '1.5';
+
+            let html = '';
+            const p = (d) => `<path d="${d}" fill="none" stroke="${S}" stroke-width="${W}" stroke-linecap="round"/>`;
+
+            // Left side: each entry = [srcRightX, midX, tgtLeftX, roundIdx, numPairs]
+            [
+                [CX.r16L + CARD_W, 1 * COL_W, CX.r8L, 0, 4],
+                [CX.r8L + CARD_W, 2 * COL_W, CX.r4L, 1, 2],
+                [CX.r4L + CARD_W, 3 * COL_W, CX.r2L, 2, 1],
+            ].forEach(([sx, mx, tx, ri, n]) => {
+                for (let m = 0; m < n; m++) {
+                    const y0 = getY(ri, 2 * m) + hc;
+                    const y1 = getY(ri, 2 * m + 1) + hc;
+                    const ym = (y0 + y1) / 2;
+                    html += p(`M${sx} ${y0} H${mx} V${y1} H${sx} M${mx} ${ym} H${tx}`);
+                }
+            });
+
+            // r2 left → final (direct horizontal)
+            {
+                const y = getY(3, 0) + hc;
+                html += p(`M${CX.r2L + CARD_W} ${y} H${CX.fin}`);
+            }
+
+            // Right side: each entry = [srcLeftX, midX, tgtRightX, roundIdx, numPairs]
+            [
+                [CX.r16R, 8 * COL_W, CX.r8R + CARD_W, 0, 4],
+                [CX.r8R, 7 * COL_W, CX.r4R + CARD_W, 1, 2],
+                [CX.r4R, 6 * COL_W, CX.r2R + CARD_W, 2, 1],
+            ].forEach(([sx, mx, tx, ri, n]) => {
+                for (let m = 0; m < n; m++) {
+                    const y0 = getY(ri, 2 * m) + hc;
+                    const y1 = getY(ri, 2 * m + 1) + hc;
+                    const ym = (y0 + y1) / 2;
+                    html += p(`M${sx} ${y0} H${mx} V${y1} H${sx} M${mx} ${ym} H${tx}`);
+                }
+            });
+
+            // r2 right → final (direct horizontal)
+            {
+                const y = getY(3, 0) + hc;
+                html += p(`M${CX.r2R} ${y} H${CX.fin + CARD_W}`);
+            }
+
+            svg.innerHTML = html;
+        })();
+
+        // ── FLAGS MAP ────────────────────────────────────────────────────────────────
+        const FLAGS = {
+            'Argentina': 'ar', 'Brasil': 'br', 'Francia': 'fr',
+            'Inglaterra': 'gb', 'España': 'es', 'Alemania': 'de',
+            'Portugal': 'pt', 'Países Bajos': 'nl', 'Holanda': 'nl',
+            'Bélgica': 'be', 'Italia': 'it', 'Uruguay': 'uy',
+            'Colombia': 'co', 'México': 'mx', 'Estados Unidos': 'us',
+            'Canada': 'ca', 'Canadá': 'ca', 'Japón': 'jp',
+            'Corea del Sur': 'kr', 'Australia': 'au', 'Marruecos': 'ma',
+            'Senegal': 'sn', 'Nigeria': 'ng', 'Ghana': 'gh',
+            'Costa de Marfil': 'ci', 'Camerún': 'cm', 'Egipto': 'eg',
+            'Argelia': 'dz', 'Túnez': 'tn', 'Sudáfrica': 'za',
+            'Mali': 'ml', 'Guinea': 'gn', 'Tanzania': 'tz',
+            'Zambia': 'zm', 'Mozambique': 'mz', 'Angola': 'ao',
+            'Arabia Saudita': 'sa', 'Irán': 'ir', 'Qatar': 'qa',
+            'Irak': 'iq', 'Jordania': 'jo', 'Uzbekistán': 'uz',
+            'Indonesia': 'id', 'China': 'cn', 'Tailandia': 'th',
+            'Vietnam': 'vn', 'Nueva Zelanda': 'nz', 'India': 'in',
+            'Filipinas': 'ph', 'Panamá': 'pa', 'Costa Rica': 'cr',
+            'Jamaica': 'jm', 'Honduras': 'hn', 'Guatemala': 'gt',
+            'El Salvador': 'sv', 'Trinidad y Tobago': 'tt', 'Chile': 'cl',
+            'Ecuador': 'ec', 'Paraguay': 'py', 'Bolivia': 'bo',
+            'Venezuela': 've', 'Perú': 'pe', 'Suiza': 'ch',
+            'Croacia': 'hr', 'Serbia': 'rs', 'Dinamarca': 'dk',
+            'Suecia': 'se', 'Noruega': 'no', 'Polonia': 'pl',
+            'Austria': 'at', 'República Checa': 'cz', 'Eslovaquia': 'sk',
+            'Hungría': 'hu', 'Rumanía': 'ro', 'Grecia': 'gr',
+            'Turquía': 'tr', 'Ucrania': 'ua', 'Islandia': 'is',
+            'Albania': 'al', 'Georgia': 'ge', 'Escocia': 'gb',
+            'Gales': 'gb', 'Eslovenia': 'si', 'Eslovaquia': 'sk',
+            'Rumania': 'ro', 'Bosnia': 'ba', 'Montenegro': 'me',
+            'Macedonia del Norte': 'mk', 'Kosovo': 'xk', 'Finlandia': 'fi',
+            'Luxemburgo': 'lu', 'Países Bajos': 'nl', 'Azerbaiyán': 'az',
+        };
+
+        function getFlag(nombre) {
+            if (!nombre) return null;
+            const code = FLAGS[nombre] || FLAGS[nombre.trim()];
+            if (!code) return null;
+            return `https://flagcdn.com/20x15/${code}.png`;
+        }
+
+        function getFlagLarge(nombre) {
+            const code = FLAGS[nombre] || FLAGS[(nombre || '').trim()];
+            if (!code) return null;
+            return `https://flagcdn.com/48x36/${code}.png`;
+        }
+
+        function setFlag(imgEl, nombre) {
+            const url = getFlag(nombre);
+            if (!url) { imgEl.classList.add('hidden'); return; }
+            imgEl.classList.remove('hidden');
+            imgEl.src = url;
+            imgEl.alt = nombre;
+            imgEl.onload = () => imgEl.classList.add('loaded');
+            imgEl.onerror = () => imgEl.classList.add('hidden');
+        }
+
+        // ── RENDER A SINGLE CARD ─────────────────────────────────────────────────────
+        function renderCard(rnd, idx, data) {
+            const trA = document.getElementById(`tr-${rnd}-${idx}-A`);
+            const trB = document.getElementById(`tr-${rnd}-${idx}-B`);
+            if (!trA || !trB) return;
+
+            const flagA = trA.querySelector('.team-flag');
+            const nameA = trA.querySelector('.team-name');
+            const scoreA = trA.querySelector('.team-score');
+            const flagB = trB.querySelector('.team-flag');
+            const nameB = trB.querySelector('.team-name');
+            const scoreB = trB.querySelector('.team-score');
+
+            if (!data) {
+                nameA.textContent = '-';
+                nameB.textContent = '-';
+                scoreA.textContent = '';
+                scoreB.textContent = '';
+                scoreA.className = 'team-score';
+                scoreB.className = 'team-score';
+                trA.className = 'team-row';
+                trB.className = 'team-row';
+                flagA.classList.add('hidden');
+                flagB.classList.add('hidden');
+                return;
+            }
+
+            nameA.textContent = data.teamA || '-';
+            nameB.textContent = data.teamB || '-';
+            setFlag(flagA, data.teamA);
+            setFlag(flagB, data.teamB);
+
+            if (data.played) {
+                const winA = data.golesA > data.golesB;
+                scoreA.textContent = data.golesA;
+                scoreB.textContent = data.golesB;
+                scoreA.className = 'team-score reveal';
+                scoreB.className = 'team-score reveal';
+                trA.className = 'team-row' + (winA ? ' winner' : ' loser');
+                trB.className = 'team-row' + (!winA ? ' winner' : ' loser');
+            } else {
+                scoreA.textContent = '';
+                scoreB.textContent = '';
+                scoreA.className = 'team-score';
+                scoreB.className = 'team-score';
+                trA.className = 'team-row';
+                trB.className = 'team-row';
+            }
+        }
+
+        function renderAll() {
+            ['r16', 'r8', 'r4', 'r2', 'final'].forEach(rnd => {
+                state[rnd].forEach((data, i) => renderCard(rnd, i, data));
+            });
+        }
+
+        // ── ANIMATE CARDS IN ─────────────────────────────────────────────────────────
+        function animateCards(rnd, delay = 35) {
+            state[rnd].forEach((_, i) => {
+                const card = document.getElementById(`mc-${rnd}-${i}`);
+                if (!card) return;
+                card.classList.remove('active');
+                void card.offsetWidth;
+                setTimeout(() => card.classList.add('active'), i * delay);
+            });
+        }
+
+        // ── SIMULATION HELPERS ───────────────────────────────────────────────────────
+        function adjRank(nombre, r) {
+            r = Number(r) || 999;
+            if (!isFinite(r) || r <= 0) r = 999;
+            if (/UEFA|REPECHAJE/i.test(nombre)) r += 250;
+            return r;
+        }
+
+        function simMatch(nA, rA, nB, rB) {
+            const rrA = adjRank(nA, rA), rrB = adjRank(nB, rB);
+            let p = (1 / rrA) / (1 / rrA + 1 / rrB);
+            const d = rrB - rrA;
+            if (d > 0) p += Math.min(d * 0.0045, 0.30);
+            else if (d < 0) p -= Math.min(Math.abs(d) * 0.0045, 0.30);
+            p = Math.max(0.03, Math.min(0.97, p));
+
+            const winA = Math.random() < p;
+            const diff = Math.abs(rrA - rrB);
+            const mg = diff <= 10 ? 2 : diff <= 30 ? 3 : 4;
+            let gA, gB;
+            if (winA) { gA = Math.floor(Math.random() * mg) + 1; gB = Math.floor(Math.random() * gA); }
+            else { gB = Math.floor(Math.random() * mg) + 1; gA = Math.floor(Math.random() * gB); }
+            if (gA === gB) winA ? gA++ : gB++;
+
+            return { golesA: gA, golesB: gB };
+        }
+
+        function getWinner(m) {
+            if (!m || !m.played) return null;
+            const winA = m.golesA > m.golesB;
+            return { name: winA ? m.teamA : m.teamB, rank: winA ? m.rankA : m.rankB };
+        }
+
+        // ── GENERATE 16VOS ───────────────────────────────────────────────────────────
+        async function generarDieciseisavos() {
+            setEstado('Cargando cruces...');
+            document.getElementById('btnGenerar').classList.remove('show');
+
+            try {
+                const res = await fetch('/api/eliminatorias/16vos');
+                const data = await res.json();
+
+                if (!res.ok || !data.cruces) {
+                    setEstado(data.error || 'Error: asegurate de haber simulado la fase de grupos primero.');
+                    showStep(0);
+                    return;
+                }
+
+                data.cruces.forEach((c, i) => {
+                    state.r16[i] = {
+                        teamA: c.equipoA.nombre, rankA: c.equipoA.ranking || 999,
+                        teamB: c.equipoB.nombre, rankB: c.equipoB.ranking || 999,
+                        golesA: null, golesB: null, played: false,
+                    };
+                });
+
+                renderAll();
+                animateCards('r16', 30);
+                setEstado('16vos generados. Presiona "Simular 16vos" cuando estes listo.');
+                showStep(1);
+            } catch {
+                setEstado('Error de conexion al cargar los cruces.');
+                showStep(0);
+            }
+        }
+
+        // ── SIMULATE A ROUND ─────────────────────────────────────────────────────────
+        function simularRonda(fromRnd, toRnd) {
+            const from = state[fromRnd];
+            const to = state[toRnd];
+
+            // 1. Simulate all unplayed matches in fromRnd
+            from.forEach(m => {
+                if (m && !m.played) {
+                    const r = simMatch(m.teamA, m.rankA, m.teamB, m.rankB);
+                    m.golesA = r.golesA;
+                    m.golesB = r.golesB;
+                    m.played = true;
+                }
+            });
+
+            // 2. Pair winners into next round
+            for (let m = 0; m < to.length; m++) {
+                const w1 = getWinner(from[2 * m]);
+                const w2 = getWinner(from[2 * m + 1]);
+                if (w1 && w2) {
+                    to[m] = {
+                        teamA: w1.name, rankA: w1.rank, teamB: w2.name, rankB: w2.rank,
+                        golesA: null, golesB: null, played: false
+                    };
+                }
+            }
+
+            // 3. Render with staggered animation
+            renderAll();
+            animateCards(fromRnd, 40);
+            setTimeout(() => animateCards(toRnd, 60), from.length * 40 + 120);
+
+            const labels = { r16: '16vos', r8: 'octavos', r4: 'cuartos', r2: 'semifinal', final: 'final' };
+            setEstado(`${labels[fromRnd]} simulados. Siguiente: ${labels[toRnd]}.`);
+
+            const nextBtn = { r16: 2, r8: 3, r4: 4, r2: 5 };
+            showStep(nextBtn[fromRnd]);
+        }
+
+        // ── CROWN CHAMPION ───────────────────────────────────────────────────────────
+        function coronarCampeon() {
+            const fm = state.final[0];
+            if (!fm) { setEstado('No hay finalistas todavia.'); return; }
+
+            if (!fm.played) {
+                const r = simMatch(fm.teamA, fm.rankA, fm.teamB, fm.rankB);
+                fm.golesA = r.golesA;
+                fm.golesB = r.golesB;
+                fm.played = true;
+            }
+
+            const campeón = fm.golesA > fm.golesB ? fm.teamA : fm.teamB;
+            const flagUrl = getFlagLarge(campeón);
+
+            renderAll();
+            animateCards('final', 0);
+
+            const old = document.getElementById('campeonWrap');
+            if (old) old.remove();
+
+            const yFin = getY(3, 0);
+            const yC = yFin + CARD_H + 24;
+            const xC = CX.fin - 20;
+
+            const wrap = document.createElement('div');
+            wrap.id = 'campeonWrap';
+            wrap.className = 'campeon-wrap';
+            wrap.style.left = `${xC}px`;
+            wrap.style.top = `${yC}px`;
+            wrap.style.width = `${CARD_W + 40}px`;
+            wrap.innerHTML = `
+        <div class="campeon-inner">
+          ${flagUrl ? `<img class="campeon-flag" src="${flagUrl}" alt="${campeón}">` : ''}
+          <div class="campeon-tag">Campeon Mundial 2026</div>
+          <div class="campeon-name">${campeón}</div>
+        </div>`;
+            document.getElementById('bracketContainer').appendChild(wrap);
+
+            setEstado(`Campeon del Mundial 2026: ${campeón}`);
+            showStep(-1);
+        }
+
+        // ── UTIL ─────────────────────────────────────────────────────────────────────
+        function setEstado(t) { document.getElementById('estado').textContent = t; }
+    </script>
+</body>
+</html>

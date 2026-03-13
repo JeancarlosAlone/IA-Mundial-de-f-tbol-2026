@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="IA.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
