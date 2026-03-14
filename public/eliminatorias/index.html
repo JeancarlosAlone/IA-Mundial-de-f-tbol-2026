@@ -8,18 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050b16;
-            --surface: #0a1525;
-            --card: #0d1c30;
-            --border: #172a44;
-            --c16: #3b82f6;
-            --c8: #10b981;
-            --c4: #f97316;
-            --c2: #a855f7;
-            --cfin: #eab308;
-            --win: #4ade80;
-            --lose: rgba(255,255,255,0.25);
-            --line: rgba(255,255,255,0.16);
+            --bg: #EDE8D8;
+            --surface: #FFFFFF;
+            --card: #FFFFFF;
+            --border: #DDD0B0;
+            --c16: #2563EB;
+            --c8: #15803D;
+            --c4: #EA580C;
+            --c2: #9333EA;
+            --cfin: #D97706;
+            --win: #15803D;
+            --lose: rgba(0,0,0,0.28);
+            --line: rgba(100,70,20,0.25);
             --SLOT: 96;
             --CARD_H: 68;
             --CARD_W: 186;
@@ -35,53 +35,68 @@
         html, body {
             min-height: 100vh;
             background: var(--bg);
-            color: #e2e8f0;
+            color: #1A1A1A;
             font-family: 'Barlow Condensed', sans-serif;
         }
 
         /* === HEADER === */
         header {
-            background: var(--surface);
+            background: #111111;
             padding: 14px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 3px solid transparent;
-            border-image: linear-gradient(90deg,#e11d48,#3b82f6,#10b981,#f97316,#a855f7,#eab308) 1;
+            border-bottom: 4px solid transparent;
+            border-image: linear-gradient(90deg,#DC2626,#EA580C,#D97706,#F59E0B,#15803D,#2563EB,#9333EA,#DC2626) 1;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
 
             header h1 {
                 font-family: 'Bebas Neue', sans-serif;
-                font-size: 26px;
-                letter-spacing: 3px;
-                background: linear-gradient(90deg, #e11d48, #3b82f6, #10b981, #f97316, #eab308);
+                font-size: 28px;
+                letter-spacing: 3.5px;
+                background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 35%, #FDE68A 55%, #F59E0B 100%);
+                background-size: 200%;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
+                animation: goldShimmer 3s linear infinite;
             }
 
+        @keyframes goldShimmer {
+            0% {
+                background-position: 0%;
+            }
+
+            100% {
+                background-position: 200%;
+            }
+        }
+
         .header-back {
-            padding: 7px 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 7px;
-            color: #94a3b8;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.10);
+            border: 1.5px solid rgba(245,158,11,0.45);
+            border-radius: 8px;
+            color: #F59E0B;
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
+            font-weight: 700;
             letter-spacing: 0.5px;
-            transition: background 0.2s, color 0.2s;
+            cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.2s;
         }
 
             .header-back:hover {
-                background: rgba(255,255,255,0.12);
-                color: #e2e8f0;
+                background: #D97706;
+                border-color: #D97706;
+                color: #111;
+                box-shadow: 0 4px 14px rgba(217,119,6,0.4);
             }
 
         /* === BUTTON BAR === */
@@ -90,40 +105,40 @@
             gap: 10px;
             flex-wrap: wrap;
             padding: 12px 22px;
-            background: #080e1a;
-            border-bottom: 1px solid var(--border);
-            min-height: 54px;
+            background: #FAFAF8;
+            border-bottom: 2px solid #E0D8C0;
+            min-height: 58px;
             align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .btn {
             display: none;
             padding: 9px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 9px;
             cursor: pointer;
             font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 14px;
             letter-spacing: 0.8px;
-            color: white;
             position: relative;
             overflow: hidden;
-            transition: transform 0.12s, filter 0.12s;
+            transition: transform 0.12s, filter 0.12s, box-shadow 0.15s;
         }
 
             .btn::after {
                 content: '';
                 position: absolute;
                 inset: 0;
-                background: rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.18);
                 opacity: 0;
                 transition: opacity 0.2s;
             }
 
             .btn:hover {
                 transform: translateY(-2px);
-                filter: brightness(1.12);
+                filter: brightness(1.08);
             }
 
                 .btn:hover::after {
@@ -152,39 +167,50 @@
         }
 
         #btnGenerar {
-            background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+            background: linear-gradient(135deg, #1D4ED8, #3B82F6);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(37,99,235,0.35);
         }
 
         #btnSim16 {
-            background: linear-gradient(135deg, #065f46, #34d399);
+            background: linear-gradient(135deg, #15803D, #22C55E);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(21,128,61,0.35);
         }
 
         #btnSim8 {
-            background: linear-gradient(135deg, #c2410c, #fb923c);
+            background: linear-gradient(135deg, #C2410C, #F97316);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(234,88,12,0.35);
         }
 
         #btnSim4 {
-            background: linear-gradient(135deg, #6d28d9, #c084fc);
+            background: linear-gradient(135deg, #7C3AED, #A78BFA);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(124,58,237,0.35);
         }
 
         #btnSim2 {
-            background: linear-gradient(135deg, #9f1239, #fb7185);
+            background: linear-gradient(135deg, #B91C1C, #F87171);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(185,28,28,0.35);
         }
 
         #btnCampeon {
-            background: linear-gradient(135deg, #78350f, #fbbf24);
-            color: #1c0d00;
+            background: linear-gradient(135deg, #92400E, #D97706, #FDE68A);
+            color: #111;
+            box-shadow: 0 3px 14px rgba(217,119,6,0.5);
         }
 
         /* === STATUS === */
         #estado {
-            padding: 7px 22px;
+            padding: 8px 22px;
             font-size: 12px;
             font-family: 'Barlow', sans-serif;
-            color: #4a6480;
-            background: var(--bg);
-            border-bottom: 1px solid #0a1525;
-            min-height: 30px;
+            color: #7A6A4A;
+            background: #F5F0E8;
+            border-bottom: 1px solid #E0D8C0;
+            min-height: 32px;
             letter-spacing: 0.2px;
         }
 
@@ -192,9 +218,23 @@
         .bracket-scroll {
             overflow-x: auto;
             overflow-y: visible;
-            padding: 20px 24px 60px;
+            padding: 22px 24px 60px;
             background: var(--bg);
         }
+
+            .bracket-scroll::-webkit-scrollbar {
+                height: 7px;
+            }
+
+            .bracket-scroll::-webkit-scrollbar-track {
+                background: #E8E0CC;
+                border-radius: 4px;
+            }
+
+            .bracket-scroll::-webkit-scrollbar-thumb {
+                background: #C4A96A;
+                border-radius: 4px;
+            }
 
         /* === ROUND LABELS === */
         .round-labels {
@@ -234,12 +274,13 @@
             position: absolute;
             width: 186px;
             background: var(--card);
-            border-radius: 9px;
-            border: 1px solid var(--border);
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
             overflow: hidden;
             transition: border-color 0.4s, box-shadow 0.4s;
             z-index: 2;
-            opacity: 0.4;
+            opacity: 0.35;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         }
 
             .match-card.active {
@@ -260,29 +301,29 @@
         }
 
         .match-card:hover {
-            box-shadow: 0 0 18px rgba(99,179,237,0.18);
-            border-color: #254d7a;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+            border-color: #C4A96A;
         }
 
         .match-card.mc-r16 {
-            border-top: 2.5px solid var(--c16);
+            border-top: 3px solid var(--c16);
         }
 
         .match-card.mc-r8 {
-            border-top: 2.5px solid var(--c8);
+            border-top: 3px solid var(--c8);
         }
 
         .match-card.mc-r4 {
-            border-top: 2.5px solid var(--c4);
+            border-top: 3px solid var(--c4);
         }
 
         .match-card.mc-r2 {
-            border-top: 2.5px solid var(--c2);
+            border-top: 3px solid var(--c2);
         }
 
         .match-card.mc-fin {
-            border-top: 2.5px solid var(--cfin);
-            box-shadow: 0 0 24px rgba(234,179,8,0.12);
+            border-top: 3px solid var(--cfin);
+            box-shadow: 0 0 30px rgba(217,119,6,0.2), 0 4px 16px rgba(0,0,0,0.1);
         }
 
         /* === TEAM ROWS === */
@@ -296,7 +337,7 @@
         }
 
             .team-row + .team-row {
-                border-top: 1px solid #142035;
+                border-top: 1px solid #EDE8DA;
             }
 
         .team-flag {
@@ -307,7 +348,7 @@
             flex-shrink: 0;
             opacity: 0;
             transition: opacity 0.4s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
             .team-flag.loaded {
@@ -324,11 +365,11 @@
             font-size: 11.5px;
             font-weight: 600;
             letter-spacing: 0.3px;
-            color: #b0c4d8;
+            color: #3A3020;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: color 0.4s;
+            transition: color 0.4s, font-weight 0.3s;
         }
 
         .team-score {
@@ -337,7 +378,7 @@
             letter-spacing: 1px;
             min-width: 18px;
             text-align: right;
-            color: #e2e8f0;
+            color: #1A1A1A;
             opacity: 0;
             transition: opacity 0.4s;
         }
@@ -360,16 +401,17 @@
         }
 
         .team-row.winner {
-            background: #031a0d;
+            background: rgba(21,128,61,0.08);
         }
 
             .team-row.winner .team-name {
-                color: var(--win);
-                font-weight: 700;
+                color: #15803D;
+                font-weight: 800;
             }
 
             .team-row.winner .team-score {
-                color: var(--win);
+                color: #15803D;
+                font-weight: 700;
             }
 
         .team-row.loser {
@@ -397,11 +439,11 @@
         }
 
         .campeon-inner {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #1a0f00, #2d1a00);
-            border: 2px solid var(--cfin);
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(234,179,8,0.35), 0 0 80px rgba(234,179,8,0.1);
+            padding: 14px 22px;
+            background: linear-gradient(135deg, #111111, #2D1A00);
+            border: 2.5px solid var(--cfin);
+            border-radius: 14px;
+            box-shadow: 0 0 50px rgba(217,119,6,0.5), 0 0 100px rgba(217,119,6,0.15), 0 8px 32px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -409,42 +451,34 @@
         }
 
         .campeon-flag {
-            width: 48px;
-            height: 36px;
+            width: 52px;
+            height: 39px;
             object-fit: cover;
             border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
 
         .campeon-tag {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 10px;
-            letter-spacing: 3px;
-            color: #d97706;
-            margin-bottom: 4px;
+            letter-spacing: 4px;
+            color: #D97706;
+            margin-bottom: 2px;
         }
 
         .campeon-name {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 18px;
-            letter-spacing: 2px;
-            color: #fef3c7;
-        }
-
-        /* === SCROLLBAR === */
-        .bracket-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .bracket-scroll::-webkit-scrollbar-track {
-            background: #080e1a;
-        }
-
-        .bracket-scroll::-webkit-scrollbar-thumb {
-            background: #1e3a5f;
-            border-radius: 3px;
+            font-size: 20px;
+            letter-spacing: 2.5px;
+            background: linear-gradient(90deg, #F59E0B, #FBBF24, #FDE68A, #F59E0B);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldShimmer 2s linear infinite;
         }
     </style>
+</head>
 </head>
 <body>
 
@@ -591,7 +625,7 @@
             svg.setAttribute('height', TOTAL_H);
 
             const hc = CARD_H / 2;
-            const S = 'rgba(255,255,255,0.17)';
+            const S = 'rgba(120,90,30,0.28)';
             const W = '1.5';
 
             let html = '';
