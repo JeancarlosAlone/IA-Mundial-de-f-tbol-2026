@@ -477,14 +477,191 @@
             background-clip: text;
             animation: goldShimmer 2s linear infinite;
         }
+
+        /* ── BOTÓN GUARDAR IMAGEN ── */
+        #btnGuardar {
+            background: linear-gradient(135deg, #111008, #2D1A00);
+            color: #F5B800;
+            border: 2px solid rgba(212,144,10,0.60);
+            font-size: 15px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35), 0 0 0 0 rgba(212,144,10,0.4);
+            animation: btnPop 0.4s cubic-bezier(.34,1.56,.64,1) both, saveGlow 2.4s ease-in-out infinite !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+            #btnGuardar::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(212,144,10,0.12) 0%, transparent 60%);
+                border-radius: inherit;
+                pointer-events: none;
+            }
+
+            #btnGuardar:hover {
+                background: linear-gradient(135deg, #2D1A00, #4A2C00);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(212,144,10,0.35);
+            }
+
+        @keyframes saveGlow {
+            0%,100% {
+                box-shadow: 0 4px 18px rgba(0,0,0,0.35), 0 0 0 0 rgba(212,144,10,0.4);
+            }
+
+            50% {
+                box-shadow: 0 4px 18px rgba(0,0,0,0.35), 0 0 16px 4px rgba(212,144,10,0.25);
+            }
+        }
+
+        /* ── OVERLAY DE EXPORTACIÓN ── */
+        #exportOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(10,6,0,0.75);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+            #exportOverlay.show {
+                display: flex;
+            }
+
+        .exp-card {
+            background: #FAFAF5;
+            border: 2px solid rgba(212,144,10,0.35);
+            border-radius: 18px;
+            padding: 28px 36px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.40);
+            animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1) both;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.86) translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .exp-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #C07800, #F5B800, #FFE080, #F5B800, #C07800);
+            background-size: 250%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldShimmer 3s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        .exp-sub {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: #7A6520;
+            letter-spacing: 0.5px;
+            margin-bottom: 22px;
+        }
+
+        .exp-spinner {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            border: 4px solid rgba(212,144,10,0.2);
+            border-top-color: #D4900A;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .exp-progress {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: #9A8060;
+            letter-spacing: 0.5px;
+        }
+
+        .exp-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .exp-btn-dl {
+            padding: 11px 28px;
+            background: linear-gradient(135deg, #C07800, #F5B800);
+            border: none;
+            border-radius: 10px;
+            color: #1A1209;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(180,110,0,0.40);
+            transition: transform 0.12s, filter 0.12s;
+        }
+
+            .exp-btn-dl:hover {
+                transform: translateY(-2px);
+                filter: brightness(1.08);
+            }
+
+        .exp-btn-close {
+            padding: 11px 20px;
+            background: #F5EDD8;
+            border: 1.5px solid #D4C490;
+            border-radius: 10px;
+            color: #4A3510;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+            .exp-btn-close:hover {
+                background: #EAE0C8;
+            }
+
+        .exp-preview {
+            margin: 12px auto 0;
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(212,144,10,0.3);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            display: none;
+        }
     </style>
-</head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
     <header>
         <h1>Eliminatorias · Mundial 2026</h1>
-        <a class="header-back" href="/">Volver al chat</a>
+        <a class="header-back" href="/?chat=1">Volver al chat</a>
     </header>
 
     <div class="btn-bar">
@@ -494,6 +671,7 @@
         <button class="btn" id="btnSim4" onclick="simularRonda('r4','r2')">Simular cuartos</button>
         <button class="btn" id="btnSim2" onclick="simularRonda('r2','final')">Simular semifinal</button>
         <button class="btn" id="btnCampeon" onclick="coronarCampeon()">Coronar campeon</button>
+        <button class="btn" id="btnGuardar" onclick="iniciarExportacion()">📸 Guardar imagen del bracket</button>
     </div>
 
     <div id="estado">Genera los 16vos de final para comenzar.</div>
@@ -507,6 +685,251 @@
     </div>
 
     <script>
+        // ── GUARDAR IMAGEN DEL BRACKET ───────────────────────────────────────────────
+        let _exportCanvas = null;
+
+        function iniciarExportacion() {
+            _exportCanvas = null;
+            document.getElementById('exportOverlay').classList.add('show');
+            document.getElementById('expTitle').textContent = 'Generando imagen...';
+            document.getElementById('expSub').textContent = 'Procesando el bracket completo';
+            document.getElementById('expSpinner').style.display = 'block';
+            document.getElementById('expProgress').textContent = 'Capturando bracket...';
+            document.getElementById('expActions').style.display = 'none';
+            document.getElementById('expPreview').style.display = 'none';
+            setTimeout(capturarBracket, 80);
+        }
+
+        async function capturarBracket() {
+            try {
+                document.getElementById('expProgress').textContent = 'Renderizando elementos...';
+
+                // Capture the bracket area (labels + container)
+                const scrollEl = document.querySelector('.bracket-scroll');
+                const labelsEl = document.getElementById('roundLabels');
+                const bracketEl = document.getElementById('bracketContainer');
+                const campeonWrap = document.getElementById('campeonWrap');
+
+                // Determine champion name for the filename + overlay
+                let campeonNombre = 'Campeon';
+                if (campeonWrap) {
+                    const nameEl = campeonWrap.querySelector('.campeon-name');
+                    if (nameEl) campeonNombre = nameEl.textContent.trim();
+                }
+
+                document.getElementById('expProgress').textContent = 'Capturando con html2canvas...';
+
+                // Full bracket: labels height + bracket container height + padding
+                const LABEL_H = labelsEl.offsetHeight;
+                const BRACKET_H = bracketEl.offsetHeight;
+                const BRACKET_W = bracketEl.offsetWidth;   // 1980px
+                const HEADER_H = 80;
+                const FOOTER_H = 60;
+                const PADDING = 32;
+                const TOTAL_W = BRACKET_W + PADDING * 2;
+                const TOTAL_H = HEADER_H + LABEL_H + BRACKET_H + FOOTER_H + PADDING * 2;
+
+                // Capture bracket container with html2canvas
+                const bracketCanvas = await html2canvas(bracketEl, {
+                    backgroundColor: null,
+                    scale: 1,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    width: BRACKET_W,
+                    height: BRACKET_H,
+                });
+
+                // Capture round labels
+                const labelCanvas = await html2canvas(labelsEl, {
+                    backgroundColor: null,
+                    scale: 1,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    width: BRACKET_W,
+                    height: LABEL_H,
+                });
+
+                document.getElementById('expProgress').textContent = 'Componiendo imagen final...';
+
+                // ── Compose final canvas ──────────────────────────────────────────────────
+                const final = document.createElement('canvas');
+                final.width = TOTAL_W;
+                final.height = TOTAL_H;
+                const ctx = final.getContext('2d');
+
+                // Background gradient (crema like the app)
+                const bg = ctx.createLinearGradient(0, 0, TOTAL_W, TOTAL_H);
+                bg.addColorStop(0, '#F0EAD8');
+                bg.addColorStop(0.5, '#EDE0C0');
+                bg.addColorStop(1, '#EAE0CC');
+                ctx.fillStyle = bg;
+                ctx.fillRect(0, 0, TOTAL_W, TOTAL_H);
+
+                // Subtle dot pattern
+                ctx.fillStyle = 'rgba(180,130,30,0.04)';
+                for (let x = 0; x < TOTAL_W; x += 28) {
+                    for (let y = 0; y < TOTAL_H; y += 28) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // ── Header banner ─────────────────────────────────────────────────────────
+                const headerGrad = ctx.createLinearGradient(0, 0, TOTAL_W, 0);
+                headerGrad.addColorStop(0, '#0D0B05');
+                headerGrad.addColorStop(0.4, '#1A1208');
+                headerGrad.addColorStop(0.6, '#1A1208');
+                headerGrad.addColorStop(1, '#0D0B05');
+                ctx.fillStyle = headerGrad;
+                roundRect(ctx, 0, 0, TOTAL_W, HEADER_H + PADDING, 0);
+
+                // Gold border line under header
+                const lineGrad = ctx.createLinearGradient(0, 0, TOTAL_W, 0);
+                lineGrad.addColorStop(0, 'transparent');
+                lineGrad.addColorStop(0.15, '#D4900A');
+                lineGrad.addColorStop(0.85, '#D4900A');
+                lineGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = lineGrad;
+                ctx.fillRect(0, HEADER_H + PADDING - 3, TOTAL_W, 3);
+
+                // Title text
+                ctx.save();
+                ctx.font = 'bold 32px "Arial Black", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Gold gradient text via fillStyle approach
+                const titleGrad = ctx.createLinearGradient(TOTAL_W * 0.3, 0, TOTAL_W * 0.7, 0);
+                titleGrad.addColorStop(0, '#C07800');
+                titleGrad.addColorStop(0.3, '#F5B800');
+                titleGrad.addColorStop(0.6, '#FFE080');
+                titleGrad.addColorStop(1, '#C07800');
+                ctx.fillStyle = titleGrad;
+                ctx.letterSpacing = '4px';
+                ctx.fillText('ELIMINATORIAS · MUNDIAL 2026', TOTAL_W / 2, PADDING + HEADER_H / 2 - 8);
+                // Sub-title
+                ctx.font = '14px "Arial", sans-serif';
+                ctx.fillStyle = 'rgba(212,144,10,0.6)';
+                ctx.fillText('SIMULACION OFICIAL · IA MUNDIAL 2026', TOTAL_W / 2, PADDING + HEADER_H / 2 + 18);
+                ctx.restore();
+
+                // ── Round labels ──────────────────────────────────────────────────────────
+                const labY = HEADER_H + PADDING;
+                ctx.drawImage(labelCanvas, PADDING, labY, BRACKET_W, LABEL_H);
+
+                // ── Bracket ───────────────────────────────────────────────────────────────
+                const brY = labY + LABEL_H;
+                ctx.drawImage(bracketCanvas, PADDING, brY, BRACKET_W, BRACKET_H);
+
+                // ── Footer ────────────────────────────────────────────────────────────────
+                const footY = brY + BRACKET_H + 10;
+
+                // Champion highlight bar
+                const champGrad = ctx.createLinearGradient(0, footY, TOTAL_W, footY);
+                champGrad.addColorStop(0, 'transparent');
+                champGrad.addColorStop(0.1, 'rgba(212,144,10,0.15)');
+                champGrad.addColorStop(0.5, 'rgba(212,144,10,0.25)');
+                champGrad.addColorStop(0.9, 'rgba(212,144,10,0.15)');
+                champGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = champGrad;
+                ctx.fillRect(0, footY, TOTAL_W, FOOTER_H);
+
+                // Thin gold line top of footer
+                ctx.fillStyle = lineGrad;
+                ctx.fillRect(0, footY, TOTAL_W, 2);
+
+                // Champion text
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 13px "Arial", sans-serif';
+                ctx.fillStyle = 'rgba(100,75,20,0.55)';
+                ctx.fillText('CAMPEON', TOTAL_W / 2, footY + 14);
+                ctx.font = 'bold 26px "Arial Black", Arial, sans-serif';
+                const champTG = ctx.createLinearGradient(TOTAL_W * 0.35, 0, TOTAL_W * 0.65, 0);
+                champTG.addColorStop(0, '#B87000');
+                champTG.addColorStop(0.5, '#F5B800');
+                champTG.addColorStop(1, '#B87000');
+                ctx.fillStyle = champTG;
+                ctx.fillText(campeonNombre.toUpperCase(), TOTAL_W / 2, footY + 40);
+                // Timestamp
+                const now = new Date();
+                const ts = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                ctx.font = '11px Arial, sans-serif';
+                ctx.fillStyle = 'rgba(100,75,20,0.40)';
+                ctx.textAlign = 'right';
+                ctx.fillText('Generado: ' + ts, TOTAL_W - PADDING, footY + FOOTER_H - 10);
+                ctx.restore();
+
+                _exportCanvas = final;
+                document.getElementById('expProgress').textContent = 'Imagen lista.';
+
+                // Preview thumbnail
+                const preview = document.getElementById('expPreview');
+                preview.src = final.toDataURL('image/png');
+                preview.style.display = 'block';
+
+                document.getElementById('expSpinner').style.display = 'none';
+                document.getElementById('expTitle').textContent = '¡Imagen lista!';
+                document.getElementById('expSub').textContent = 'El bracket completo esta listo para descargar';
+                document.getElementById('expActions').style.display = 'flex';
+
+            } catch (err) {
+                document.getElementById('expSpinner').style.display = 'none';
+                document.getElementById('expTitle').textContent = 'Error al generar imagen';
+                document.getElementById('expSub').textContent = err.message || 'Intenta de nuevo';
+                document.getElementById('expProgress').textContent = '';
+                document.getElementById('expActions').innerHTML =
+                    '<button class="exp-btn-close" onclick="cerrarExport()">Cerrar</button>';
+                document.getElementById('expActions').style.display = 'flex';
+                console.error('Export error:', err);
+            }
+        }
+
+        function descargarImagen() {
+            if (!_exportCanvas) return;
+            const now = new Date();
+            const fecha = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+            const nombre = `Mundial2026_Bracket_${fecha}.png`;
+
+            // Convertir a blob para disparo más confiable
+            _exportCanvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = nombre;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                // Mostrar mensaje de confirmación
+                document.getElementById('expSub').textContent = `Guardado como "${nombre}" en tu carpeta de Descargas`;
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }, 'image/png');
+        }
+
+        function cerrarExport() {
+            document.getElementById('exportOverlay').classList.remove('show');
+            _exportCanvas = null;
+        }
+
+        // Helper: rounded rect fill (ctx, x, y, w, h, r)
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
         // ── CONSTANTS ────────────────────────────────────────────────────────────────
         const SLOT = 96;
         const CARD_H = 68;
@@ -945,10 +1368,31 @@
 
             setEstado(`Campeon del Mundial 2026: ${campeón}`);
             showStep(-1);
+            // Mostrar boton guardar
+            setTimeout(() => {
+                const bg = document.getElementById('btnGuardar');
+                if (bg) bg.classList.add('show');
+            }, 800);
         }
 
         // ── UTIL ─────────────────────────────────────────────────────────────────────
         function setEstado(t) { document.getElementById('estado').textContent = t; }
     </script>
+
+    <!-- EXPORT OVERLAY -->
+    <div id="exportOverlay">
+        <div class="exp-card" id="expCard">
+            <div class="exp-title" id="expTitle">Generando imagen...</div>
+            <div class="exp-sub" id="expSub">Procesando el bracket completo</div>
+            <div class="exp-spinner" id="expSpinner"></div>
+            <div class="exp-progress" id="expProgress">Capturando bracket...</div>
+            <img id="expPreview" class="exp-preview" alt="Preview">
+            <div class="exp-actions" id="expActions" style="display:none">
+                <button class="exp-btn-dl" id="expBtnDl" onclick="descargarImagen()">⬇ Descargar PNG</button>
+                <button class="exp-btn-close" onclick="cerrarExport()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
